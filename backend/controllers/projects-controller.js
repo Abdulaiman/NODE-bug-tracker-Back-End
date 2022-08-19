@@ -6,6 +6,7 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
   const projects = await Project.find();
   res.status(200).json({
     status: "success",
+    length: projects.length,
     payload: projects,
   });
 });
@@ -18,8 +19,28 @@ exports.createProject = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.updateProject = catchAsync(async (req, res, next) => {
+  console.log(req.body);
+  console.log(req.params);
+  const document = await Project.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+    runValidators: true,
+  });
+  if (!document)
+    next(
+      new AppError(
+        `there is no document found with the id ${req.params.id}`,
+        202
+      )
+    );
+  res.status(200).json({
+    status: "success",
+    payload: document,
+  });
+});
+
 exports.deleteProject = catchAsync(async (req, res, next) => {
-  const doc = await Project.findByIdAndDelete("62fe40279af8654b7aa63ef7");
+  const doc = await Project.findByIdAndDelete(req.params.id);
   if (!doc) {
     return next(new AppError("there are no documents find with this id"));
   }

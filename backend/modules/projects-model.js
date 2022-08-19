@@ -4,11 +4,25 @@ const ProjectSchema = new mongoose.Schema({
   name: {
     type: String,
     unique: true,
+    required: [true, "a tour must have a name"],
   },
-  email: {
+  createdAt: {
+    type: Date,
+    default: Date.now(),
+  },
+  description: {
     type: String,
-    unique: true,
   },
+  developers: [
+    {
+      type: mongoose.Schema.ObjectId,
+    },
+  ],
+  tickets: [
+    {
+      type: mongoose.Schema.ObjectId,
+    },
+  ],
 });
 
 const Project = mongoose.model("Project", ProjectSchema);
