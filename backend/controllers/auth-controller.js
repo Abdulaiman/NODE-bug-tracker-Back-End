@@ -1,3 +1,4 @@
+const { promisify } = require("util");
 const jwt = require("jsonwebtoken");
 const crypto = require("crypto");
 const AppError = require("../../utils/app-error");
@@ -30,7 +31,7 @@ exports.login = catchAsync(async (req, res, next) => {
   if (!correctPass || !member)
     next(new AppError("wrong email or password please check and try agian"));
 
-  const token = jwt.sign({ id: member }, process.env.JWT_SECRET_KEY, {
+  const token = jwt.sign({ id: member._id }, process.env.JWT_SECRET_KEY, {
     expiresIn: process.env.JWT_EXPIRES_IN,
   });
 
@@ -106,4 +107,26 @@ exports.resetPassword = catchAsync(async (req, res, next) => {
     status: "success",
     token: jwttoken,
   });
+});
+
+exports.protect = catchAsync(async (req, res, next) => {
+  let token;
+  if (
+    req.headers.authorization &&
+    req.headers.authorization.startsWith("Bearer")
+  ) {
+    token = req.headers.authorization.split(" ")[1];
+  } else
+    next(new AppError("you are not logged in please log in to have access"));
+
+  const verify = await promisify(jwt.verify)(token, process.env.JWT_SECRET_KEY);
+  const { id } = verify;
+  console.log(id);
+  const member = await Member.findById(id);
+  if (!member) next(new AppError("user does no longer exist"));
+  if (member.passwordChangedAt && verify.iat < member.passwordChangedAt)
+    next(new AppError("user recently changed his password"));
+
+  req.member = member;
+  next();
 });
