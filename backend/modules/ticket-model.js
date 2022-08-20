@@ -9,10 +9,16 @@ const TicketSchema = new mongoose.Schema(
       type: mongoose.Schema.ObjectId,
       ref: "Project",
     },
-    member: {
+    createdBy: {
       type: mongoose.Schema.ObjectId,
       ref: "Member",
     },
+    assignedTo: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Member",
+      },
+    ],
     priority: {
       type: String,
       enum: ["medium", "critical", "high", "critical high-priority"],
@@ -43,7 +49,7 @@ const TicketSchema = new mongoose.Schema(
 
 TicketSchema.pre(/^find/, function (next) {
   this.populate({
-    path: "member",
+    path: "createdBy assignedTo",
   });
 
   next();

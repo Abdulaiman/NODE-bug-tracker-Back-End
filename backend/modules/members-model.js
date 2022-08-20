@@ -59,9 +59,14 @@ const MemberSchema = new mongoose.Schema(
   }
 );
 
-MemberSchema.virtual("tickets", {
+MemberSchema.virtual("myTickets", {
   ref: "Ticket",
-  foreignField: "member",
+  foreignField: "createdBy",
+  localField: "_id",
+});
+MemberSchema.virtual("assignedTickets", {
+  ref: "Ticket",
+  foreignField: "assignedTo",
   localField: "_id",
 });
 
