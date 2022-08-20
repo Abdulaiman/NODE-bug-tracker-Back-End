@@ -1,8 +1,16 @@
 const express = require("express");
 const {
-  getAllUsers,
+  getAllMembers,
   createNewUser,
+  getMember,
+  updateMe,
+  getMe,
 } = require("../controllers/members-controller");
+const {
+  protect,
+  restrictTo,
+  updatePassword,
+} = require("../controllers/auth-controller");
 const {
   signUp,
   login,
@@ -16,5 +24,9 @@ Router.post("/sign-up", signUp);
 Router.post("/login", login);
 Router.get("/forgot-password", forgotPassword);
 Router.post("/reset-password/:token", resetPassword);
-
+Router.patch("/update-me", protect, updateMe);
+Router.patch("/update-password", protect, updatePassword);
+Router.get("/me", protect, getMe);
+Router.route("/").get(protect, restrictTo("admin"), getAllMembers);
+Router.route("/:id").get(getMember);
 module.exports = Router;

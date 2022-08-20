@@ -121,7 +121,6 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   const verify = await promisify(jwt.verify)(token, process.env.JWT_SECRET_KEY);
   const { id } = verify;
-  console.log(id);
   const member = await Member.findById(id);
   if (!member) next(new AppError("user does no longer exist"));
   if (member.passwordChangedAt && verify.iat < member.passwordChangedAt)
@@ -129,4 +128,45 @@ exports.protect = catchAsync(async (req, res, next) => {
 
   req.member = member;
   next();
+});
+
+exports.restrictTo =
+  (...roles) =>
+  (req, res, next) => {
+    roles.forEach((role) => {
+      if (role === req.member.role) {
+        return true;
+      } else {
+        next(new AppError("you do not have access to this route :D "));
+      }
+    });
+    next();
+  };
+
+exports.updatePassword = catchAsync(async (req, res, next) => {
+  const member = await Member.findById(req.member._id);
+
+  const correctPassword = await member.correctPassword(
+    req.body.password,
+    member.password
+  );
+  if (!correctPassword) {
+    return next(
+      new AppError("wrong password please specify the correct password")
+    );
+  }
+  member.password = req.body.newPassword;
+  member.passwordConfirm = req.body.newPasswordConfirm;
+  member.passwordChangedAt = Date.now();
+  await member.save();
+
+  const token = jwt.sign({ id: newMember._id }, process.env.JWT_SECRET_KEY, {
+    expiresIn: process.env.JWT_EXPIRES_IN,
+  });
+
+  res.status(201).json({
+    status: "success",
+    token,
+    data: member,
+  });
 });

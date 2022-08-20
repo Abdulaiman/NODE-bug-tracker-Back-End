@@ -11,6 +11,18 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
   });
 });
 
+exports.getProject = catchAsync(async (req, res, next) => {
+  const project = await Project.findById(req.params.id);
+
+  if (!project) {
+    return next(new AppError("no user found", 404));
+  }
+  res.status(200).json({
+    status: "success",
+    project,
+  });
+});
+
 exports.createProject = catchAsync(async (req, res, next) => {
   const newProject = await Project.create(req.body);
   res.status(200).json({
@@ -20,8 +32,6 @@ exports.createProject = catchAsync(async (req, res, next) => {
 });
 
 exports.updateProject = catchAsync(async (req, res, next) => {
-  console.log(req.body);
-  console.log(req.params);
   const document = await Project.findByIdAndUpdate(req.params.id, req.body, {
     new: true,
     runValidators: true,
@@ -40,11 +50,7 @@ exports.updateProject = catchAsync(async (req, res, next) => {
 });
 
 exports.deleteProject = catchAsync(async (req, res, next) => {
-  const doc = await Project.findByIdAndDelete(req.params.id);
-  if (!doc) {
-    return next(new AppError("there are no documents find with this id"));
-  }
-
+  await Project.findByIdAndDelete(req.params.id);
   res.status(202).json({
     status: "success",
   });
