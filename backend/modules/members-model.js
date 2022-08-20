@@ -3,61 +3,77 @@ const validator = require("validator");
 const bcrypt = require("bcryptjs");
 const crypto = require("crypto");
 
-const MemberSchema = new mongoose.Schema({
-  name: {
-    type: String,
-    required: [true, "a member must have a name"],
-  },
-  email: {
-    type: String,
-    required: [true, "email is required"],
-    unique: [true, "email already exist"],
-    validate: [
-      validator.isEmail,
-      'please write the correct input for the email "example@example.com',
-    ],
-  },
-  role: {
-    type: String,
-    default: "developer",
-    enum: {
-      values: ["developer", "admin", "project-manager"],
-      message:
-        'the only fields allowed are "developer, admin and project-manager',
+const MemberSchema = new mongoose.Schema(
+  {
+    name: {
+      type: String,
+      required: [true, "a member must have a name"],
     },
-  },
-  projects: [
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: "Project",
+    email: {
+      type: String,
+      required: [true, "email is required"],
+      unique: [true, "email already exist"],
+      validate: [
+        validator.isEmail,
+        'please write the correct input for the email "example@example.com',
+      ],
     },
-  ],
-  tickets: [
-    {
-      type: mongoose.Schema.ObjectId,
-      ref: "Ticket",
-    },
-  ],
-  password: {
-    type: String,
-    minLength: 8,
-    required: [true, "password is required"],
-  },
-  passwordConfirm: {
-    type: String,
-    required: [true, "please confirm your password"],
-    validate: {
-      validator: function (el) {
-        return el === this.password;
+    role: {
+      type: String,
+      default: "developer",
+      enum: {
+        values: ["developer", "admin", "project-manager"],
+        message:
+          'the only fields allowed are "developer, admin and project-manager',
       },
-      message: "password must be the same",
     },
-    select: false,
+    projects: [
+      {
+        type: mongoose.Schema.ObjectId,
+        ref: "Project",
+      },
+    ],
+    password: {
+      type: String,
+      minLength: 8,
+      required: [true, "password is required"],
+    },
+    passwordConfirm: {
+      type: String,
+      required: [true, "please confirm your password"],
+      validate: {
+        validator: function (el) {
+          return el === this.password;
+        },
+        message: "password must be the same",
+      },
+      select: false,
+    },
+    passwordResetToken: String,
+    passwordResetTokenExpires: Date,
+    passwordChangedAt: Date,
   },
-  passwordResetToken: String,
-  passwordResetTokenExpires: Date,
-  passwordChangedAt: Date,
+  {
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
+  }
+);
+
+MemberSchema.virtual("tickets", {
+  ref: "Ticket",
+  foreignField: "member",
+  localField: "_id",
 });
+
+MemberSchema.pre(/^find/, function (next) {
+  this.populate("projects");
+  next();
+});
+// MemberSchema.virtual("projects", {
+//   ref: "Project",
+//   foreignField: "member",
+//   localField: "_id",
+// });
 
 MemberSchema.pre("save", async function (next) {
   if (!this.isModified("password")) next();

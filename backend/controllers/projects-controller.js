@@ -12,7 +12,7 @@ exports.getAllProjects = catchAsync(async (req, res, next) => {
 });
 
 exports.getProject = catchAsync(async (req, res, next) => {
-  const project = await Project.findById(req.params.id);
+  const project = await Project.findById(req.params.id).populate("tickets");
 
   if (!project) {
     return next(new AppError("no user found", 404));
@@ -25,6 +25,7 @@ exports.getProject = catchAsync(async (req, res, next) => {
 
 exports.createProject = catchAsync(async (req, res, next) => {
   const newProject = await Project.create(req.body);
+  console.log(newProject);
   res.status(200).json({
     status: "success",
     payload: newProject,

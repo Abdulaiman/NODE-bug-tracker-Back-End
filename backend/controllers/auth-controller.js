@@ -123,7 +123,7 @@ exports.protect = catchAsync(async (req, res, next) => {
   const { id } = verify;
   const member = await Member.findById(id);
   if (!member) next(new AppError("user does no longer exist"));
-  if (member.passwordChangedAt && verify.iat < member.passwordChangedAt)
+  if (member.passwordChangedAt && verify.iat > member.passwordChangedAt)
     next(new AppError("user recently changed his password"));
 
   req.member = member;

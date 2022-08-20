@@ -23,7 +23,7 @@ exports.getAllMembers = catchAsync(async (req, res, next) => {
 });
 
 exports.getMember = catchAsync(async (req, res, next) => {
-  const member = await Member.findById(req.params.id);
+  const member = await Member.findById(req.params.id).populate("tickets");
 
   if (!member) {
     return next(new AppError("no user found", 404));
@@ -51,7 +51,9 @@ exports.updateMe = catchAsync(async (req, res, next) => {
 });
 
 exports.getMe = catchAsync(async (req, res, next) => {
-  const member = await Member.findById(req.member._id);
+  const member = await (
+    await Member.findById(req.member._id)
+  ).populate("tickets");
 
   if (!member) {
     return next(new AppError("no user found", 404));
