@@ -1,5 +1,6 @@
 const AppError = require("../../utils/app-error");
 const catchAsync = require("../../utils/catch-async");
+const { findById, findByIdAndUpdate } = require("../modules/members-model");
 const Member = require("../modules/members-model");
 
 const selectedBody = (object, ...allowedFields) => {
@@ -60,6 +61,20 @@ exports.getMe = catchAsync(async (req, res, next) => {
   if (!member) {
     return next(new AppError("no user found", 404));
   }
+  res.status(200).json({
+    status: "success",
+    member,
+  });
+});
+
+exports.updateMember = catchAsync(async (req, res, next) => {
+  if (req.body.password || req.body.passwordConfirm) {
+    return next(new AppError("this route can not be uses to update password"));
+  }
+  const member = await Member.findByIdAndUpdate(req.params.id, req.body, {
+    new: true,
+  });
+
   res.status(200).json({
     status: "success",
     member,

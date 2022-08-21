@@ -2,7 +2,10 @@ const mongoose = require("mongoose");
 
 const TicketSchema = new mongoose.Schema(
   {
-    title: String,
+    type: {
+      type: String,
+      enum: ["bug", "feature request", , "others"],
+    },
     feature: String,
     description: String,
     project: {
@@ -47,9 +50,15 @@ const TicketSchema = new mongoose.Schema(
   }
 );
 
+TicketSchema.virtual("comments", {
+  ref: "Comment",
+  foreignField: "ticket",
+  localField: "_id",
+});
+
 TicketSchema.pre(/^find/, function (next) {
   this.populate({
-    path: "createdBy assignedTo",
+    path: "createdBy assignedTo comments",
   });
 
   next();

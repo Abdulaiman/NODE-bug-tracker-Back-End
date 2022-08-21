@@ -5,6 +5,7 @@ const {
   getMember,
   updateMe,
   getMe,
+  updateMember,
 } = require("../controllers/members-controller");
 const {
   protect,
@@ -26,6 +27,12 @@ Router.get("/forgot-password", forgotPassword);
 Router.post("/reset-password/:token", resetPassword);
 Router.patch("/update-me", protect, updateMe);
 Router.patch("/update-password", protect, updatePassword);
+Router.patch(
+  "/:id/update-member-role",
+  protect,
+  restrictTo("admin"),
+  updateMember
+);
 Router.get("/me", protect, getMe);
 Router.route("/").get(protect, restrictTo("admin"), getAllMembers);
 Router.route("/:id").get(getMember);
