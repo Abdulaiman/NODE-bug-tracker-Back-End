@@ -4,9 +4,10 @@ const TicketSchema = new mongoose.Schema(
   {
     type: {
       type: String,
-      enum: ["bug", "feature request", , "others"],
+      enum: ["bug", "feature request", "others"],
     },
     feature: String,
+    title: String,
     description: String,
     project: {
       type: mongoose.Schema.ObjectId,
@@ -63,6 +64,10 @@ TicketSchema.pre(/^find/, function (next) {
 
   next();
 });
+// TicketSchema.pre("findByIdAndUpdate", function (next) {
+//   this.updatedAt = Date.now();
+//   next();
+// });
 
 const Ticket = mongoose.model("Ticket", TicketSchema);
 

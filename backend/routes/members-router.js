@@ -1,7 +1,6 @@
 const express = require("express");
 const {
   getAllMembers,
-  createNewUser,
   getMember,
   updateMe,
   getMe,
@@ -27,6 +26,7 @@ Router.get("/forgot-password", forgotPassword);
 Router.post("/reset-password/:token", resetPassword);
 Router.patch("/update-me", protect, updateMe);
 Router.patch("/update-password", protect, updatePassword);
+
 Router.patch(
   "/:id/update-member-role",
   protect,

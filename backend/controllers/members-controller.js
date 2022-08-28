@@ -10,7 +10,6 @@ const selectedBody = (object, ...allowedFields) => {
       newObj[el] = object[el];
     }
   });
-  console.log(newObj);
   return newObj;
 };
 

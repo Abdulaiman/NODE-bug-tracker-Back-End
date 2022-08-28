@@ -192,11 +192,18 @@ exports.updateTicketStatus = catchAsync(async (req, res, next) => {
   });
 });
 exports.updateTicket = catchAsync(async (req, res, next) => {
+  req.body.updatedAt = Date.now();
   const ticket = await Ticket.findByIdAndUpdate(req.params.ticketId, req.body, {
     new: true,
   });
   res.status(200).json({
     status: "success",
     ticket,
+  });
+});
+exports.deleteMany = catchAsync(async (req, res, next) => {
+  await Ticket.deleteMany();
+  res.status(200).json({
+    status: "all tickets deleted successfully",
   });
 });

@@ -14,6 +14,7 @@ const {
   getTicketsByTypes,
   updateTicketStatus,
   updateTicket,
+  deleteMany,
 } = require("../controllers/ticket-controller");
 const commentRouter = require("./comments-route");
 const Router = express.Router({ mergeParams: true });
@@ -48,6 +49,8 @@ Router.patch(
   restrictTo("developer"),
   updateTicketStatus
 );
+
+Router.delete("/delete-many", deleteMany);
 Router.patch(
   "/:ticketId/update-ticket",
   protect,

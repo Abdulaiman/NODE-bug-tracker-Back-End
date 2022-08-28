@@ -25,10 +25,10 @@ exports.getProject = catchAsync(async (req, res, next) => {
 
 exports.createProject = catchAsync(async (req, res, next) => {
   const newProject = await Project.create(req.body);
-  console.log(newProject);
+  const projects = await Project.find();
   res.status(200).json({
     status: "success",
-    payload: newProject,
+    payload: projects,
   });
 });
 
@@ -54,5 +54,12 @@ exports.deleteProject = catchAsync(async (req, res, next) => {
   await Project.findByIdAndDelete(req.params.id);
   res.status(202).json({
     status: "success",
+  });
+});
+
+exports.deleteMany = catchAsync(async (req, res, next) => {
+  await Project.deleteMany();
+  res.status(200).json({
+    status: "all projects deleted successfully",
   });
 });
